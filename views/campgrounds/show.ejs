@@ -1,0 +1,97 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3">
+            <div id="mapid"></div>
+        </div>
+        <div class="col-lg-9">
+            <div class="img-thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="float-right">$<%= campground.price %>/night</h4>
+                    <h4><a><%= campground.name %></a></h4>
+                    <p><%= campground.description %></p>
+                    <p><em>Submitted By <%= campground.author.username %></em></p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+            <span style="padding: 1px;"></span>
+            <div class="card card-body bg-light">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                <div class="row">   
+                    <div class="col-lg-12">
+                        <strong><%= comment.author.username.toUpperCase() %></strong>
+                        <span class="float-right">10 days ago</span>
+                        <p><%= comment.text %></p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-warning btn-sm" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
+                        <form id="delete-comment" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                        <% } %>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <script>
+    var lat = <%= campground.lat %>;
+    var lng = <%= campground.lng %>;
+    mapboxgl.accessToken = 'pk.eyJ1Ijoibml0aW4xNzEyIiwiYSI6ImNqd3VrY3U1bTA2aDg0Mm03NHJmcXN6c3QifQ.3jarO8CTXpWIzspoYGqMTw';
+    var map = new mapboxgl.Map({
+        container: 'mapid',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [lng, lat],
+        zoom: 9
+    });
+</script> -->
+
+<script>
+// Show the map using script
+    var lat = '<%= campground.lat %>';
+    var lng = '<%= campground.lng %>';
+    // Display Map
+    var mymap = L.map('mapid').setView([lat, lng], 13);
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap & OpenCage</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        accessToken: 'pk.eyJ1Ijoibml0aW4xNzEyIiwiYSI6ImNqd3VrY3U1bTA2aDg0Mm03NHJmcXN6c3QifQ.3jarO8CTXpWIzspoYGqMTw'
+    }).addTo(mymap);
+
+    // Markers Polylines poluygons circles and popups
+    var marker = L.marker([lat,lng]).addTo(mymap);
+    /*var circle = L.circle([51.508, -0.11], {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: 500
+    }).addTo(mymap);
+    var polygon = L.polygon([
+        [51.509, -0.08],
+        [51.503, -0.06],
+        [51.51, -0.047]
+    ]).addTo(mymap);
+    */
+    // Informacion attach
+    marker.bindpopup("<b>Hello Buddy!</b><br><%= campground.name %> here.").openPopup();
+    /*circle.bindPopup("I am a circle.");
+    polygon.bindPopup("I am a polygon.");*/
+
+</script>
+
+
+<% include ../partials/footer %>
